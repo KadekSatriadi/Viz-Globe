@@ -11,6 +11,8 @@ public class Globe: MonoBehaviour
     public float radius = 1f;
     public Material material;
     public bool initOnStart = false;
+    public bool egocentric = false;
+
 
     #region EVENTS
     public Action OnReady = delegate { };
@@ -34,6 +36,13 @@ public class Globe: MonoBehaviour
     private MeshRenderer render;
     private SphereCollider collider;
 
+    private float pointVisibilityThreshold = 0.000001f;
+
+
+    //debugs
+    Vector2 debug_latLong;
+
+    #region MONOS
     private void Start()
     {
         if (initOnStart)
@@ -41,16 +50,6 @@ public class Globe: MonoBehaviour
             Initiate();
         }        
     }
-
-    public void Initiate()
-    {
-       if(filter == null) filter = gameObject.AddComponent<MeshFilter>();
-       if(render == null) render = gameObject.AddComponent<MeshRenderer>();
-        render.material = material;
-        CreateSphere();
-    }
-
-    Vector2 latLong;
     private void Update()
     {
         #region DEBUG
@@ -62,10 +61,59 @@ public class Globe: MonoBehaviour
         //}
         #endregion
     }
-
     private void OnGUI()
     {
-       //GUI.Label(new Rect(100, 100, 200, 200), "LatLong = " + latLong.ToString());
+        //GUI.Label(new Rect(100, 100, 200, 200), "LatLong = " + latLong.ToString());
+    }
+    #endregion
+
+    #region PRIVATES
+
+    #endregion
+
+    #region PUBLIC
+    /// <summary>
+    /// Is point visible
+    /// </summary>
+    /// <param name="viewpoint"></param>
+    /// <returns></returns>
+    public bool IsPointVisible(Vector3 viewpoint, Vector2 latLon)
+    {
+        Vector3 worldPos = GeoToWorldPosition(latLon);
+        Ray ray = new Ray(viewpoint, worldPos - viewpoint); //camera to point
+
+        RaycastHit hit; //point to camera
+        Physics.Raycast(ray, out hit);
+
+        if( hit.transform == transform)
+        {
+            float hitDistance = Vector3.Distance(hit.point, viewpoint);
+            float pointDistance = Vector3.Distance(worldPos, viewpoint);
+            if (hitDistance + 0.0001f >= pointDistance) // the 0.0001f constant to remove flickering ...
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }      
+    }
+
+    /// <summary>
+    /// Initiate, create sphere
+    /// </summary>
+    public void Initiate()
+    {
+        if (filter == null) filter = gameObject.AddComponent<MeshFilter>();
+        if (render == null) render = gameObject.AddComponent<MeshRenderer>();
+        render.material = material;
+        if(egocentric) render.material.SetTextureScale("_MainTex", new Vector2(-1, 1));
+        CreateSphere();
     }
 
     /// <summary>
@@ -83,7 +131,6 @@ public class Globe: MonoBehaviour
         return new Vector2(lat, -lon);
     }
 
-
     /// <summary>
     /// Return world position from lat lon
     /// </summary>
@@ -95,6 +142,11 @@ public class Globe: MonoBehaviour
         lat = (90f - lat) * Mathf.Deg2Rad;
         lon *= Mathf.Deg2Rad;
 
+        if (egocentric)
+        {
+            lat *= 1f;
+            lon *= -1f;
+        }
         float x = radius * Mathf.Sin(lat) * Mathf.Cos(lon);
         float y = radius * Mathf.Sin(lat) * Mathf.Sin(lon);
         float z = radius * Mathf.Cos(lat);
@@ -148,7 +200,10 @@ public class Globe: MonoBehaviour
         #region Normales		
         Vector3[] normales = new Vector3[vertices.Length];
         for (int n = 0; n < vertices.Length; n++)
+        {
             normales[n] = vertices[n].normalized;
+            if (egocentric) normales[n] = -1f * normales[n];
+        }
         #endregion
 
         #region UVs
@@ -214,6 +269,7 @@ public class Globe: MonoBehaviour
 
         OnReady.Invoke();
     }
+    #endregion
 
     #region DEBUG
 
@@ -252,5 +308,4 @@ public class Globe: MonoBehaviour
     //}
 
     #endregion
-
 }
