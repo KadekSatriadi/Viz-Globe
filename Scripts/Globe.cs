@@ -6,13 +6,20 @@ using UnityEngine;
 //based on https://wiki.unity3d.com/index.php/ProceduralPrimitives#C.23_-_Sphere
 public class Globe: MonoBehaviour
 {
-
+    [Header("General settings")]
     public int meshResolution = 3;
-    public float radius = 1f;
+    public float diameter = 1f;
     public Material material;
+
     public bool initOnStart = false;
+    [Header("Egocentric")]
     public bool egocentric = false;
 
+    [Header("LatLong Lines")]
+    public bool showLatLonLines = false;
+    public int nLat = 5;
+    public int nLon = 10;
+    public float tickness = 0.001f;
 
     #region EVENTS
     public Action OnReady = delegate { };
@@ -35,9 +42,7 @@ public class Globe: MonoBehaviour
     private MeshFilter filter;
     private MeshRenderer render;
     private SphereCollider collider;
-
-    private float pointVisibilityThreshold = 0.000001f;
-
+    private List<GameObject> lines = new List<GameObject>();
 
     //debugs
     Vector2 debug_latLong;
@@ -68,10 +73,78 @@ public class Globe: MonoBehaviour
     #endregion
 
     #region PRIVATES
+    public void CreateLatLonLines()
+    {
+        float R = diameter + 0.001f;
+        float segment = R / nLat;
+        int lineResolution = 100;
+        Material lineMaterial = new Material(Shader.Find("Standard"));
+        GameObject lineParent = new GameObject("LatLonLines");
+        lineParent.transform.position = transform.position;
+        lineParent.transform.SetParent(transform);
+        for (int i = 0; i < nLat; i++)
+        {
+            float h = R - (segment * i);
+            GameObject l = new GameObject();
+            l.transform.position = transform.position;
+            l.transform.position -= new Vector3(0, R - h, 0);
+            l.transform.SetParent(lineParent.transform);
+            lines.Add(l);
+            float r = Mathf.Sqrt((R * 2 * h) - (h * h));
+            DrawCircle(l, r, tickness, lineResolution, lineMaterial);
+        }
 
+        for (int i = 0; i < nLat; i++)
+        {
+            float h = R + (segment * i);
+            GameObject l = new GameObject();
+            l.transform.position = transform.position;
+            l.transform.position -= new Vector3(0, R - h, 0);
+            l.transform.SetParent(lineParent.transform);
+            lines.Add(l);
+            float r = Mathf.Sqrt((R * 2 * h) - (h * h));
+            DrawCircle(l, r, tickness, lineResolution, lineMaterial);
+        }
+
+        for (int i = nLon * 2; i >= 0; i--)
+        {
+            float h = R - (segment * i);
+            GameObject l = new GameObject();
+            l.transform.position = transform.position;
+            l.transform.rotation = Quaternion.Euler(-90, (360 / nLon) * i, 0);
+            l.transform.SetParent(lineParent.transform);
+            lines.Add(l);
+            DrawCircle(l, R, tickness, lineResolution, lineMaterial);
+        }
+
+    }
+
+    //https://loekvandenouweland.com/content/use-linerenderer-in-unity-to-draw-a-circle.html
+    public static void DrawCircle(GameObject container, float radius, float lineWidth, int segments, Material mat)
+    {
+        var line = container.AddComponent<LineRenderer>();
+        line.useWorldSpace = false;
+        line.startWidth = lineWidth;
+        line.endWidth = lineWidth;
+        line.positionCount = segments + 1;
+        line.material = mat;
+
+        var pointCount = segments + 1; // add extra point to make startpoint and endpoint the same to close the circle
+        var points = new Vector3[pointCount];
+
+        for (int i = 0; i < pointCount; i++)
+        {
+            var rad = Mathf.Deg2Rad * (i * 360f / segments);
+            points[i] = new Vector3(Mathf.Sin(rad) * radius, 0, Mathf.Cos(rad) * radius);
+
+        }
+
+        line.SetPositions(points);
+    }
     #endregion
 
     #region PUBLIC
+
     /// <summary>
     /// Is point visible
     /// </summary>
@@ -114,6 +187,7 @@ public class Globe: MonoBehaviour
         render.material = material;
         if(egocentric) render.material.SetTextureScale("_MainTex", new Vector2(-1, 1));
         CreateSphere();
+        if(showLatLonLines) CreateLatLonLines();
     }
 
     /// <summary>
@@ -125,7 +199,7 @@ public class Globe: MonoBehaviour
     {
         pos = transform.InverseTransformPoint(pos);
 
-        float lat = 90f - (Mathf.Acos(pos.y / radius)) * 180f / Mathf.PI;
+        float lat = 90f - (Mathf.Acos(pos.y / diameter)) * 180f / Mathf.PI;
         float lon = ((270f + (Mathf.Atan2(pos.x, pos.z)) * 180f / Mathf.PI) % 360f) - 180f;
 
         return new Vector2(lat, -lon);
@@ -147,9 +221,9 @@ public class Globe: MonoBehaviour
             lat *= 1f;
             lon *= -1f;
         }
-        float x = radius * Mathf.Sin(lat) * Mathf.Cos(lon);
-        float y = radius * Mathf.Sin(lat) * Mathf.Sin(lon);
-        float z = radius * Mathf.Cos(lat);
+        float x = diameter * Mathf.Sin(lat) * Mathf.Cos(lon);
+        float y = diameter * Mathf.Sin(lat) * Mathf.Sin(lon);
+        float z = diameter * Mathf.Cos(lat);
 
         Vector3 position = new Vector3(-x, z, -y);
 
@@ -178,7 +252,7 @@ public class Globe: MonoBehaviour
         float _pi = Mathf.PI;
         float _2pi = _pi * 2f;
 
-        vertices[0] = Vector3.up * radius;
+        vertices[0] = Vector3.up * diameter;
         for (int lat = 0; lat < nbLat; lat++)
         {
             float a1 = _pi * (float)(lat + 1) / (nbLat + 1);
@@ -191,10 +265,10 @@ public class Globe: MonoBehaviour
                 float sin2 = Mathf.Sin(a2);
                 float cos2 = Mathf.Cos(a2);
 
-                vertices[lon + lat * (nbLong + 1) + 1] = new Vector3(sin1 * cos2, cos1, sin1 * sin2) * radius;
+                vertices[lon + lat * (nbLong + 1) + 1] = new Vector3(sin1 * cos2, cos1, sin1 * sin2) * diameter;
             }
         }
-        vertices[vertices.Length - 1] = Vector3.up * -radius;
+        vertices[vertices.Length - 1] = Vector3.up * -diameter;
         #endregion
 
         #region Normales		

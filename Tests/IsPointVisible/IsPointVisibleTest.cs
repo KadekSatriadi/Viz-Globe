@@ -34,6 +34,6 @@ public class IsPointVisibleTest : MonoBehaviour
                 }
            
         }
-        Handles.Label(viewPoint.position, "Visible points");
+        //Handles.Label(viewPoint.position, "Visible points");
     }
 }

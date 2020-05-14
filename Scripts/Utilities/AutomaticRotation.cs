@@ -9,6 +9,8 @@ public class AutomaticRotation : MonoBehaviour
     public bool isInteractable = false;
     public float interactionSpeed = 0.1f;
     public Transform target;
+    [Header("Sync Rotation")]
+    public bool syncRotationAllObject = true; 
 
     private bool isPlaying = true;
     private Quaternion prevRotation;
@@ -54,11 +56,29 @@ public class AutomaticRotation : MonoBehaviour
         {
             Vector3 currentPos = Input.mousePosition;
             Vector3 dir = currentPos - prevPosition;
-            target.Rotate(Vector3.up, -dir.x * interactionSpeed);
+            if (syncRotationAllObject)
+            {
+                foreach (AutomaticRotation r in FindObjectsOfType<AutomaticRotation>())
+                {
+                    r.target.Rotate(new Vector3(dir.y * interactionSpeed, -dir.x * interactionSpeed, 0), Space.World);
+                }
+            }
+            else
+            {
+                target.Rotate(Vector3.up, -dir.x * interactionSpeed);
+            }
             prevRotation = target.rotation;
             prevPosition = currentPos;
         }
 
-        if(isPlaying && !isInteracting && isActive) transform.rotation =  Quaternion.Slerp(transform.rotation, Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y + speed, transform.rotation.eulerAngles.z), Time.time * speed);
-    }
+        Quaternion rot = Quaternion.identity;
+        if (isPlaying && !isInteracting && isActive)
+        {
+            rot = Quaternion.Slerp(transform.rotation, 
+                Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y + speed, transform.rotation.eulerAngles.z), 
+                Time.time * speed);
+                target.rotation = rot;
+        }
+
+        }
 }
