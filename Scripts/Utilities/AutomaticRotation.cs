@@ -9,6 +9,10 @@ public class AutomaticRotation : MonoBehaviour
     public bool isInteractable = false;
     public float interactionSpeed = 0.1f;
     public Transform target;
+
+    [Header("Constraints")]
+    public bool allowPitching = false;
+
     [Header("Sync Rotation")]
     public bool syncRotationAllObject = true; 
 
@@ -16,6 +20,7 @@ public class AutomaticRotation : MonoBehaviour
     private Quaternion prevRotation;
     private bool isInteracting = false;
     private Vector3 prevPosition;
+    private float prevAngle;
 
     // Start is called before the first frame update
     void Start()
@@ -64,8 +69,17 @@ public class AutomaticRotation : MonoBehaviour
                 }
             }
             else
+
             {
-                target.Rotate(Vector3.up, -dir.x * interactionSpeed);
+                if (allowPitching)
+                {
+                    float rotation = dir.y * interactionSpeed;
+                    target.Rotate(new Vector3(rotation, -dir.x * interactionSpeed, 0), Space.World);
+                }
+                else
+                {
+                    target.Rotate(new Vector3(0, -dir.x * interactionSpeed, 0), Space.World);
+                }
             }
             prevRotation = target.rotation;
             prevPosition = currentPos;

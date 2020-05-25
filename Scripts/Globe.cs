@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -16,10 +17,14 @@ public class Globe: MonoBehaviour
     public bool egocentric = false;
 
     [Header("LatLong Lines")]
-    public bool showLatLonLines = false;
-    public int nLat = 5;
-    public int nLon = 10;
+    public bool showLines = false;
+    public int nParalel = 10;
+    public int nMeridian = 30;
     public float tickness = 0.001f;
+
+    [Header("Animation")]
+    public AnimationCurve animationCurve;
+    public float animationDuration = 1f;
 
     #region EVENTS
     public Action OnReady = delegate { };
@@ -43,9 +48,8 @@ public class Globe: MonoBehaviour
     private MeshRenderer render;
     private SphereCollider collider;
     private List<GameObject> lines = new List<GameObject>();
-
+    private bool isReady = false;
     //debugs
-    Vector2 debug_latLong;
 
     #region MONOS
     private void Start()
@@ -55,72 +59,12 @@ public class Globe: MonoBehaviour
             Initiate();
         }        
     }
-    private void Update()
-    {
-        #region DEBUG
-        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        //if (Physics.Raycast(ray, out RaycastHit hit))
-        //{
-        //    latLong = WorldToGeoPosition(hit.point);
-        //}
-        #endregion
-    }
-    private void OnGUI()
-    {
-        //GUI.Label(new Rect(100, 100, 200, 200), "LatLong = " + latLong.ToString());
-    }
     #endregion
 
     #region PRIVATES
-    public void CreateLatLonLines()
-    {
-        float R = diameter + 0.001f;
-        float segment = R / nLat;
-        int lineResolution = 100;
-        Material lineMaterial = new Material(Shader.Find("Standard"));
-        GameObject lineParent = new GameObject("LatLonLines");
-        lineParent.transform.position = transform.position;
-        lineParent.transform.SetParent(transform);
-        for (int i = 0; i < nLat; i++)
-        {
-            float h = R - (segment * i);
-            GameObject l = new GameObject();
-            l.transform.position = transform.position;
-            l.transform.position -= new Vector3(0, R - h, 0);
-            l.transform.SetParent(lineParent.transform);
-            lines.Add(l);
-            float r = Mathf.Sqrt((R * 2 * h) - (h * h));
-            DrawCircle(l, r, tickness, lineResolution, lineMaterial);
-        }
-
-        for (int i = 0; i < nLat; i++)
-        {
-            float h = R + (segment * i);
-            GameObject l = new GameObject();
-            l.transform.position = transform.position;
-            l.transform.position -= new Vector3(0, R - h, 0);
-            l.transform.SetParent(lineParent.transform);
-            lines.Add(l);
-            float r = Mathf.Sqrt((R * 2 * h) - (h * h));
-            DrawCircle(l, r, tickness, lineResolution, lineMaterial);
-        }
-
-        for (int i = nLon * 2; i >= 0; i--)
-        {
-            float h = R - (segment * i);
-            GameObject l = new GameObject();
-            l.transform.position = transform.position;
-            l.transform.rotation = Quaternion.Euler(-90, (360 / nLon) * i, 0);
-            l.transform.SetParent(lineParent.transform);
-            lines.Add(l);
-            DrawCircle(l, R, tickness, lineResolution, lineMaterial);
-        }
-
-    }
-
     //https://loekvandenouweland.com/content/use-linerenderer-in-unity-to-draw-a-circle.html
-    public static void DrawCircle(GameObject container, float radius, float lineWidth, int segments, Material mat)
+    private static void DrawCircle(GameObject container, float radius, float lineWidth, int segments, Material mat)
     {
         var line = container.AddComponent<LineRenderer>();
         line.useWorldSpace = false;
@@ -141,9 +85,187 @@ public class Globe: MonoBehaviour
 
         line.SetPositions(points);
     }
+
+    /// <summary>
+    /// Get points between two latlons
+    /// https://math.stackexchange.com/questions/329749/draw-an-arc-in-3d-coordinate-system
+    /// </summary>
+    /// <param name="latLon1"></param>
+    /// <param name="latLon2"></param>
+    /// <param name="n"></param>
+    /// <returns>List of points in local coordinate</returns>
+    private List<Vector3> GetPointsBetween(Vector2 latLon1, Vector2 latLon2, int n)
+    {
+        //using slerp interpolation 
+        List<Vector3> points = new List<Vector3>();
+        Vector3 center = transform.position;
+        Vector3 startPoint = GeoToWorldPosition(latLon1);
+        Vector3 endPoint = GeoToWorldPosition(latLon2);
+
+        Vector3 u = startPoint - transform.position;
+        Vector3 v = endPoint - transform.position;
+
+        for (int i = 0; i < n; i++)
+        {
+            float t = (float) i / (n - 1f);
+            //final point
+            Vector3 p = center + Vector3.Slerp(u, v, t);
+            //add offset
+            Vector3 off = (p - transform.position).normalized * 0.001f;
+            points.Add(p + off);
+        }
+
+        return points;
+    }
+
+ 
+
+    
+
+    private IEnumerator RotationTween(Quaternion s, Quaternion e, Action a)
+    {
+        float journey = 0f;
+        while (journey <= animationDuration)
+        {
+            journey = journey + Time.deltaTime;
+            float percent = Mathf.Clamp01(journey / animationDuration);
+            Quaternion current = Quaternion.LerpUnclamped(s, e, animationCurve.Evaluate(percent));
+            transform.rotation = current;
+            yield return null;
+        }
+        a.Invoke();
+    }
     #endregion
 
     #region PUBLIC
+    /// <summary>
+    /// [Untested] Calculating central angle between two lat lon.
+    /// Source: https://en.wikipedia.org/wiki/Great-circle_distance
+    /// </summary>
+    /// <param name="latLon1"></param>
+    /// <param name="latLon2"></param>
+    /// <returns></returns>
+    private float GetCentralAngle(Vector2 latLon1, Vector2 latLon2)
+    {
+        float lat1 = latLon1.x;
+        float lat2 = latLon2.x;
+        float lon1 = latLon1.y;
+        float lon2 = latLon2.y;
+        float absDiffLon = Mathf.Abs(lon1 - lon2);
+
+        return Mathf.Acos(
+            Mathf.Sin(lat1) * Mathf.Sin(lat2) +
+            Mathf.Cos(lat1) * Mathf.Cos(lat2) * Mathf.Cos(absDiffLon)
+            );
+    }
+
+    /// <summary>
+    ///Calculate the distance between two lat lon
+    /// </summary>
+    /// <param name="latLon1"></param>
+    /// <param name="latLon2"></param>
+    /// <returns></returns>
+    public float GreatCircleDistance(Vector2 latLon1, Vector2 latLon2)
+    {
+        return diameter * 0.5f * GetCentralAngle(latLon1, latLon2);
+    }
+
+    /// <summary>
+    /// Drawing line from latLon1 to latLon2
+    /// </summary>
+    /// <param name="latLon1"></param>
+    /// <param name="latLon2"></param>
+    public void DrawGreatCircleLine(Vector2 latLon1, Vector2 latLon2, Color color, float width)
+    {
+        GameObject g = new GameObject("Line");
+        g.transform.position = transform.position;
+        g.transform.SetParent(transform);
+
+        LineRenderer line = g.AddComponent<LineRenderer>();
+        line.useWorldSpace = false;
+        line.material = new Material(Shader.Find("Standard"));
+        line.widthMultiplier = width;
+        line.material.color = color;
+        List<Vector3> points = GetPointsBetween(latLon1, latLon2, 50);
+        line.positionCount = points.Count;
+        //add points, transform to local coordinate
+        foreach (Vector3 p in points)
+        {
+            line.SetPosition(points.IndexOf(p), g.transform.InverseTransformPoint(p));
+        }
+    }
+
+
+    /// <summary>
+    /// [DOES NOT WORK] Rotating the globe such that the latLon is at the give world point
+    /// </summary>
+    /// <param name="worldPoint">the point to which latLon should be moved</param>
+    /// <param name="latLon">the target lat lon</param>
+    public void RotateToPoint(Vector3 worldPoint, Vector2 latLon)
+    {
+        Vector3 target = GeoToWorldPosition(latLon);
+        //rotate
+        Quaternion rot = Quaternion.FromToRotation(worldPoint - transform.position, target - transform.position) * transform.localRotation;
+        //animate
+        StartCoroutine(RotationTween(transform.localRotation, rot, delegate { }));
+    }
+
+    public void CreateLatLonLines()
+    {
+        float R = diameter + 0.0001f;
+        float segment = R / nParalel;
+        int lineResolution = 100;
+        Material lineMaterial = new Material(Shader.Find("Standard"));
+        GameObject lineParent = new GameObject("LatLonLines");
+        lineParent.transform.position = transform.position;
+        lineParent.transform.SetParent(transform);
+        for (int i = 0; i < nParalel; i++)
+        {
+            float h = R - (segment * i);
+            GameObject l = new GameObject();
+            l.transform.position = transform.position;
+            l.transform.position -= new Vector3(0, R - h, 0);
+            l.transform.SetParent(lineParent.transform);
+            lines.Add(l);
+            float r = Mathf.Sqrt((R * 2 * h) - (h * h));
+            DrawCircle(l, r, tickness, lineResolution, lineMaterial);
+        }
+
+        for (int i = 0; i < nParalel; i++)
+        {
+            float h = R + (segment * i);
+            GameObject l = new GameObject();
+            l.transform.position = transform.position;
+            l.transform.position -= new Vector3(0, R - h, 0);
+            l.transform.SetParent(lineParent.transform);
+            lines.Add(l);
+            float r = Mathf.Sqrt((R * 2 * h) - (h * h));
+            DrawCircle(l, r, tickness, lineResolution, lineMaterial);
+        }
+
+        for (int i = nMeridian * 2; i >= 0; i--)
+        {
+            float h = R - (segment * i);
+            GameObject l = new GameObject();
+            l.transform.position = transform.position;
+            l.transform.rotation = Quaternion.Euler(-90, (360 / nMeridian) * i, 0);
+            l.transform.SetParent(lineParent.transform);
+            lines.Add(l);
+            DrawCircle(l, R, tickness, lineResolution, lineMaterial);
+        }
+
+    }
+
+    
+   
+    /// <summary>
+    /// Is globe initiated
+    /// </summary>
+    /// <returns></returns>
+    public bool IsGlobeReady()
+    {
+        return isReady;
+    }
 
     /// <summary>
     /// Is point visible
@@ -187,7 +309,8 @@ public class Globe: MonoBehaviour
         render.material = material;
         if(egocentric) render.material.SetTextureScale("_MainTex", new Vector2(-1, 1));
         CreateSphere();
-        if(showLatLonLines) CreateLatLonLines();
+        if(showLines) CreateLatLonLines();
+        isReady = true;
     }
 
     /// <summary>
@@ -343,43 +466,5 @@ public class Globe: MonoBehaviour
 
         OnReady.Invoke();
     }
-    #endregion
-
-    #region DEBUG
-
-    //private void OnDrawGizmos()
-    //{
-    //    Vector2 latLon1 = new Vector2(0, 0);
-    //    Vector2 latLon2 = new Vector2(90f, 0);
-    //    Vector2 latLon3 = new Vector2(-90f, 0);
-    //    Vector2 latLon4 = new Vector2(35.102100f, 33.255587f);
-
-    //    Vector3 pos1 = GeoToWorldPosition(latLon1);
-    //    Vector3 pos2 = GeoToWorldPosition(latLon2);
-    //    Vector3 pos3 = GeoToWorldPosition(latLon3);
-    //    Vector3 pos4 = GeoToWorldPosition(latLon4);
-
-    //    Gizmos.DrawSphere(pos1, 0.0015f);
-    //    Gizmos.DrawSphere(pos2, 0.0015f);
-    //    Gizmos.DrawSphere(pos3, 0.0015f);
-    //    Gizmos.DrawSphere(pos4, 0.0015f);
-    //    Handles.Label(pos1, latLon1.ToString());
-    //    Handles.Label(pos2, latLon2.ToString());
-    //    Handles.Label(pos3, latLon3.ToString());
-    //    Handles.Label(pos4, latLon4.ToString());
-
-    //    int res = 10;
-    //    for(int i = -90; i < 90; i += res)
-    //    {
-    //        for(int j = -180; j < 180; j += res)
-    //        {
-    //            Vector2 latLonA = new Vector2(i, j);
-    //            Vector3 pos = GeoToWorldPosition(latLonA);
-    //           // Gizmos.DrawSphere(pos, 0.0015f);
-    //           // if(i % 30 == 0 && j % 60 == 0) Handles.Label(pos, latLonA.ToString());
-    //        }
-    //    }
-    //}
-
     #endregion
 }
