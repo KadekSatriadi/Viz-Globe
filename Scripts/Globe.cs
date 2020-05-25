@@ -49,6 +49,7 @@ public class Globe: MonoBehaviour
     private SphereCollider collider;
     private List<GameObject> lines = new List<GameObject>();
     private bool isReady = false;
+    private List<LineRenderer> arcs = new List<LineRenderer>();
     //debugs
 
     #region MONOS
@@ -175,7 +176,7 @@ public class Globe: MonoBehaviour
     /// </summary>
     /// <param name="latLon1"></param>
     /// <param name="latLon2"></param>
-    public void DrawGreatCircleLine(Vector2 latLon1, Vector2 latLon2, Color color, float width)
+    public void DrawGreatCircleArc(Vector2 latLon1, Vector2 latLon2, Color color, float width)
     {
         GameObject g = new GameObject("Line");
         g.transform.position = transform.position;
@@ -193,6 +194,21 @@ public class Globe: MonoBehaviour
         {
             line.SetPosition(points.IndexOf(p), g.transform.InverseTransformPoint(p));
         }
+
+        //add to list
+        arcs.Add(line);
+    }
+
+    /// <summary>
+    /// Remove all arcs
+    /// </summary>
+    public void RemoveArcs()
+    {
+        foreach(LineRenderer l in arcs)
+        {
+            Destroy(l.gameObject, 0);
+        }
+        arcs = new List<LineRenderer>();
     }
 
 

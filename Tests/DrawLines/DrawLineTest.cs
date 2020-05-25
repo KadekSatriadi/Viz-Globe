@@ -21,8 +21,11 @@ public class DrawLineTest : MonoBehaviour
             g2.transform.localScale = Vector3.one * 0.01f;
             g2.transform.position = globe.GeoToWorldPosition(latlon2);
 
+            g1.transform.SetParent(globe.transform);
+            g2.transform.SetParent(globe.transform);
+
             Debug.Log("Distance = " + globe.GreatCircleDistance(latlon1, latlon2));
-            globe.DrawGreatCircleLine(latlon1, latlon2, Color.blue, 0.001f);
+            globe.DrawGreatCircleArc(latlon1, latlon2, Color.blue, 0.001f);
         };
     }
 
