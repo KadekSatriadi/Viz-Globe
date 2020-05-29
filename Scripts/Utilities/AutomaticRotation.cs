@@ -75,6 +75,21 @@ public class AutomaticRotation : MonoBehaviour
                 {
                     float rotation = dir.y * interactionSpeed;
                     target.Rotate(new Vector3(rotation, -dir.x * interactionSpeed, 0), Space.World);
+
+                    Vector3 euler = target.localRotation.eulerAngles;
+                    float angle = euler.x;
+                    angle = (angle > 180) ? angle - 360 : angle;
+
+                    Debug.LogWarning(angle);
+                    float maxEu = Mathf.Min(Mathf.Abs(angle), 8f);
+                    if(angle > 0)
+                    {
+                        target.rotation = Quaternion.Euler(euler.x, euler.y, 360 - maxEu);
+                    }
+                    else
+                    {
+                        target.rotation = Quaternion.Euler(euler.x, euler.y, -maxEu + 360);
+                    }
                 }
                 else
                 {

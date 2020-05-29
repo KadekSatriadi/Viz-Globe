@@ -10,10 +10,14 @@ public class RotateToPointTest : MonoBehaviour
     Vector2 currentLatLon;
     // Start is called before the first frame update
     GameObject g;
+    GameObject c;
     void Start()
     {
         g = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         g.transform.localScale = Vector3.one * 0.01f;
+
+        c = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        c.transform.localScale = Vector3.one * 0.01f;
     }
 
     // Update is called once per frame
@@ -25,17 +29,20 @@ public class RotateToPointTest : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if(Physics.Raycast(ray, out RaycastHit hit))
             {
-                if(hit.transform == globe.transform)
+                currentLatLon = globe.WorldToGeoPosition(hit.point);
+                Vector3 pos = globe.GeoToWorldPosition(currentLatLon);
+                c.transform.position = pos;
+                text = "Lat long= " + latLon.ToString();
+
+                globe.RotateToPoint(pos, latLon, false);
+
+                if (Input.GetMouseButtonDown(0))
                 {
-                    currentLatLon = globe.WorldToGeoPosition(hit.point);
-                    text = "Lat long= " + latLon.ToString();
+                    globe.RotateToPoint(pos, latLon, true);
                 }
             }
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                globe.RotateToPoint(globe.GeoToWorldPosition(currentLatLon), latLon);
-            }
+
         }
     }
 
