@@ -25,7 +25,7 @@ public class DrawLineTest : MonoBehaviour
             g2.transform.SetParent(globe.transform);
 
             Debug.Log("Distance = " + globe.GreatCircleDistance(latlon1, latlon2));
-            globe.DrawGreatCircleArc(latlon1, latlon2, Color.blue, 0.001f);
+            globe.DrawGreatCircleArc(latlon1, latlon2, Color.black, 0.0025f);
         };
     }
 
