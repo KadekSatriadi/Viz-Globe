@@ -50,9 +50,10 @@ public class Globe: MonoBehaviour
     private MeshFilter filter;
     private MeshRenderer render;
     private SphereCollider collider;
-    private List<GameObject> lines = new List<GameObject>();
+    private List<GameObject> graticules = new List<GameObject>();
     private bool isReady = false;
     private List<LineRenderer> arcs = new List<LineRenderer>();
+    private const float ROLL_LIMIT = 50f;
     //debugs
 
     #region MONOS
@@ -139,6 +140,49 @@ public class Globe: MonoBehaviour
 
     #region PUBLIC
     /// <summary>
+    /// Get the circle points around the center
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="angularRadius">Angle between the point to spherecenter and center to spherecenter</param>
+    /// <returns></returns>
+    public List<Vector3> GetCirclePoints(Vector2 center, float angularRadius, int n)
+    {
+        List<Vector3> points = new List<Vector3>();
+        Vector3 worldCenter = GeoToWorldPosition(center);
+        Vector3 center2World = worldCenter - transform.position;
+        //Create points on the pole
+        List<Vector3> polarPoints = GetSmallCirclePointsLatitude(90f - angularRadius,  n);
+        //rotate center
+        Quaternion rot = Quaternion.FromToRotation(transform.up * radius, center2World);
+        foreach(Vector3 p in polarPoints)
+        {
+            //rotate to the center
+            Vector3 rotatedV = rot * p;
+            points.Add(rotatedV);
+        }
+
+        return points;
+    }
+    /// <summary>
+    /// Get the circle lat lons around the center 
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="angularRadius"></param>
+    /// <param name="n"></param>
+    /// <returns></returns>
+    public List<Vector2> GetCircleLatLons(Vector2 center, float angularRadius, int n)
+    {
+        List<Vector3> list = GetCirclePoints(center, angularRadius, n);
+        List<Vector2> latLons = new List<Vector2>();
+        foreach(Vector3 p in list)
+        {
+            latLons.Add(WorldToGeoPosition(p));
+        }
+
+        return latLons;
+    }
+
+    /// <summary>
     /// Yaw globe
     /// </summary>
     /// <param name="angle"></param>
@@ -163,12 +207,22 @@ public class Globe: MonoBehaviour
         Quaternion rot = transform.rotation;
         Vector3 axis = Vector3.Cross(cameraPosition - transform.position, transform.up);
         transform.Rotate(axis, angle, Space.World);
-        if(Vector3.Angle(Vector3.up, transform.up) > 50f)
+        if(IsBeyonRollLimit())
         {
             transform.rotation = rot;
         }
     }
-
+    public bool IsBeyonRollLimit()
+    {
+        if (Vector3.Angle(Vector3.up, transform.up) > ROLL_LIMIT)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     /// <summary>
     /// [UNTESTED - USE WITH CAUTION] Calculating central angle between two lat lon.
@@ -209,7 +263,7 @@ public class Globe: MonoBehaviour
     /// <param name="latLon2"></param>
     public void DrawGreatCircleArc(Vector2 latLon1, Vector2 latLon2, Color color, float width)
     {
-        GameObject g = new GameObject("Line");
+        GameObject g = new GameObject("Arc");
         g.transform.position = transform.position;
         g.transform.SetParent(transform);
 
@@ -278,9 +332,7 @@ public class Globe: MonoBehaviour
         Quaternion finalRot = currentRotation * Quaternion.FromToRotation(toTarget, toWorld);
         if (doit)
         {
-            StartCoroutine(RotationTween(currentRotation, finalRot, delegate
-            {
-            }));
+            transform.rotation = finalRot;
         }
 
     }
@@ -303,7 +355,7 @@ public class Globe: MonoBehaviour
         {
             float lon = i * spacing;
             Vector3 point = GeoToWorldPosition(new Vector2(lat, lon));
-            points.Add(transform.InverseTransformPoint(point + (point - transform.position).normalized * 0.001f));
+            points.Add(transform.InverseTransformPoint(point + (point - transform.position).normalized * 0.002f));
         }
         return points;
     }
@@ -315,7 +367,7 @@ public class Globe: MonoBehaviour
         {
             float lat = i * spacing;
             Vector3 point = GeoToWorldPosition(new Vector2(lat, lon));
-            points.Add(transform.InverseTransformPoint(point + (point - transform.position).normalized * 0.001f));
+            points.Add(transform.InverseTransformPoint(point + (point - transform.position).normalized * 0.002f));
         }
         return points;
     }
@@ -339,7 +391,6 @@ public class Globe: MonoBehaviour
 
         g.transform.SetParent(transform);
     }
-
     public void DrawLatitudeSmallCircle(float lat)
     {
         GameObject g = new GameObject("LatitudeLine");
@@ -359,7 +410,9 @@ public class Globe: MonoBehaviour
 
         g.transform.SetParent(transform);
     }
-
+    /// <summary>
+    /// Create graticules
+    /// </summary>
     public void CreateGraticuleLines()
     {
         //Draw equator

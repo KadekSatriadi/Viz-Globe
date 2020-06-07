@@ -6,10 +6,11 @@ public class GlobeRotator : MonoBehaviour
 {
     public Globe globe;
     public AnimationCurve transferFunction;
-    public float maxSpeed = 5f;
-    public float minSpeed = 2f;
-    [Range(0,0.9f)]
-    public float pichConstraint;
+    [Range(0.1f, 1f)]
+    public float maxSpeed = 0.5f;
+    [Range(0.1f, 1f)]
+    public float minSpeed = 0.05f;
+
     private enum InteractioStatus
     {
         Drag, Null
@@ -51,17 +52,6 @@ public class GlobeRotator : MonoBehaviour
 
             globe.RollLimit(Camera.main.transform.position, y);
             globe.Yaw(x);
-
-
-            float t = pichConstraint;
-            //if (globe.transform.rotation.x > t || globe.transform.rotation.x < -t)
-            //{
-            //    globe.transform.rotation = lastRotation;
-            //}
-            //else
-            //{
-            //    lastRotation = globe.transform.rotation;
-            //}
         }
 
         lastCursorPosition = Input.mousePosition;

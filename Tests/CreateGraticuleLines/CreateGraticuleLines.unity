@@ -368,13 +368,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshResolution: 200
   radius: 0.5
-  material: {fileID: 2100000, guid: 4e6b912df2831ca4eb1cbc6083560b4e, type: 2}
+  material: {fileID: 2100000, guid: ab5f544992e0ee64592daa2f06c9a610, type: 2}
   initOnStart: 1
   egocentric: 0
   showLines: 1
-  graticuleColor: {r: 1, g: 0.33445135, b: 0, a: 1}
+  graticuleColor: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 1}
   latitudeSpacing: 10
-  longitudeSpacing: 30
+  longitudeSpacing: 15
   tickness: 0.001
   lineShader: {fileID: 10755, guid: 0000000000000000f000000000000000, type: 0}
   lineResolution: 50
