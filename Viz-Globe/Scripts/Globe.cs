@@ -239,7 +239,7 @@ public class Globe: MonoBehaviour
         tapes = new List<GameObject>();
     }
     /// <summary>
-    /// Get the circle points around the center in world coordinate
+    /// Get the circle points around the center in local coordinate
     /// </summary>
     /// <param name="center"></param>
     /// <param name="angularRadius">Angle between the point to spherecenter and center to spherecenter</param>
@@ -275,7 +275,7 @@ public class Globe: MonoBehaviour
         List<Vector2> latLons = new List<Vector2>();
         foreach(Vector3 p in list)
         {
-            latLons.Add(WorldToGeoPosition(p));
+            latLons.Add(WorldToGeoPosition(transform.TransformPoint(p)));
         }
 
         return latLons;
@@ -466,6 +466,18 @@ public class Globe: MonoBehaviour
             transform.rotation = finalRot;
         }
 
+    }
+
+    /// <summary>
+    /// NOT TESTED! Rotate globe such that latlonorigin at latlontarget
+    /// </summary>
+    /// <param name="latLonTarget"></param>
+    /// <param name="latLonOrigin"></param>
+    public void RotateToPointLatitude(Vector2 latLonTarget, Vector2 latLonOrigin)
+    {
+        float diff = latLonOrigin.x - latLonTarget.x;
+        Vector3 rot = transform.rotation.eulerAngles;
+        transform.rotation = Quaternion.Euler(rot.x, rot.y, diff);       
     }
 
     //private void OnDrawGizmos()
