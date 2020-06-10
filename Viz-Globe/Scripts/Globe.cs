@@ -239,20 +239,20 @@ public class Globe: MonoBehaviour
         tapes = new List<GameObject>();
     }
     /// <summary>
-    /// Get the circle points around the center
+    /// Get the circle points around the center in world coordinate
     /// </summary>
     /// <param name="center"></param>
     /// <param name="angularRadius">Angle between the point to spherecenter and center to spherecenter</param>
-    /// <returns></returns>
+    /// <returns>Local coordinate</returns>
     public List<Vector3> GetCirclePoints(Vector2 center, float angularRadius, int n)
     {
         List<Vector3> points = new List<Vector3>();
-        Vector3 worldCenter = GeoToWorldPosition(center);
-        Vector3 center2World = worldCenter - transform.position;
+        Vector3 worldCenter = transform.InverseTransformPoint(GeoToWorldPosition(center));
+        Vector3 center2World = worldCenter - Vector3.zero;
         //Create points on the pole
         List<Vector3> polarPoints = GetSmallCirclePointsLatitude(90f - angularRadius,  n);
         //rotate center
-        Quaternion rot = Quaternion.FromToRotation(transform.up * radius, center2World);
+        Quaternion rot = Quaternion.FromToRotation(transform.InverseTransformVector(transform.up) * radius, center2World);
         foreach(Vector3 p in polarPoints)
         {
             //rotate to the center
@@ -291,9 +291,9 @@ public class Globe: MonoBehaviour
     public void DrawCircle(Vector2 center, float angularRadius, Color color, float width)
     {
         GameObject g = new GameObject("Circle");
-        g.transform.position = transform.position;
         g.transform.rotation = transform.rotation;
         g.transform.SetParent(transform);
+        g.transform.localPosition = Vector3.zero;
 
         LineRenderer line = g.AddComponent<LineRenderer>();
         line.widthMultiplier = width;
@@ -306,11 +306,11 @@ public class Globe: MonoBehaviour
         List<Vector3> local = new List<Vector3>();
         foreach(Vector3 p in points)
         {
-            local.Add(transform.InverseTransformPoint(p));
+            local.Add(g.transform.InverseTransformPoint(p));
         }
 
-        line.positionCount = local.Count;
-        line.SetPositions(local.ToArray());
+        line.positionCount = points.Count;
+        line.SetPositions(points.ToArray());
     }
 
     /// <summary>
@@ -477,7 +477,12 @@ public class Globe: MonoBehaviour
     //    Gizmos.color = Color.blue;
     //    Gizmos.DrawLine(transform.position + upVector, transform.position);
     //}
-
+    /// <summary>
+    /// Return in local coordinate
+    /// </summary>
+    /// <param name="lat"></param>
+    /// <param name="n"></param>
+    /// <returns>Local space</returns>
     private List<Vector3> GetSmallCirclePointsLatitude(float lat, int n)
     {
         List<Vector3> points = new List<Vector3>();
