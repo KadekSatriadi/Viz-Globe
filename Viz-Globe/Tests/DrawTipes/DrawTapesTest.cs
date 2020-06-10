@@ -19,10 +19,14 @@ public class DrawTapesTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (globe.IsGlobeReady())
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            globe.ClearTapes();
-            globe.DrawTape(latlon1, latlon2, width, color);
+            if (globe.IsGlobeReady())
+            {
+                globe.ClearTapes();
+                globe.DrawTape(latlon1, latlon2, width, color);
+            }
+
         }
 
     }

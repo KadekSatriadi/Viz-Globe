@@ -111,7 +111,7 @@ public class Globe: MonoBehaviour
         Vector3 u = startPoint - transform.position;
         Vector3 v = endPoint - transform.position;
 
-        for (int i = 0; i <= n; i++)
+        for (int i = 0; i < n; i++)
         {
             float t = (float) i / (n - 1f);
             //final point
@@ -149,8 +149,9 @@ public class Globe: MonoBehaviour
     public void DrawTape(Vector2 latLon1, Vector2 latLon2, float width, Color color)
     {
         GameObject g = new GameObject("Tape");
-        g.transform.position = transform.position;
+        g.transform.rotation = transform.rotation;
         g.transform.SetParent(transform);
+        g.transform.localPosition = Vector3.zero;
         MeshFilter meshFilter = g.AddComponent<MeshFilter>();
         MeshRenderer meshRenderer = g.AddComponent<MeshRenderer>();
 
@@ -193,8 +194,8 @@ public class Globe: MonoBehaviour
             Vector3 leftVert = anchor - (sideVector.normalized * width * 0.5f);
             Vector3 rightVert = anchor + (sideVector.normalized * width * 0.5f);
 
-            verts[p] = leftVert;
-            verts[p + 1] = rightVert;
+            verts[p] = transform.InverseTransformPoint(leftVert);
+            verts[p + 1] = transform.InverseTransformPoint(rightVert);
 
             //normal
             normals[p] = (leftVert - transform.position).normalized;
@@ -278,6 +279,38 @@ public class Globe: MonoBehaviour
         }
 
         return latLons;
+    }
+
+    /// <summary>
+    /// Draw circle on the sphere
+    /// </summary>
+    /// <param name="center"></param>
+    /// <param name="angularRadius"></param>
+    /// <param name="color"></param>
+    /// <param name="width"></param>
+    public void DrawCircle(Vector2 center, float angularRadius, Color color, float width)
+    {
+        GameObject g = new GameObject("Circle");
+        g.transform.position = transform.position;
+        g.transform.rotation = transform.rotation;
+        g.transform.SetParent(transform);
+
+        LineRenderer line = g.AddComponent<LineRenderer>();
+        line.widthMultiplier = width;
+        line.material = new Material(lineShader);
+        line.material.color = color;
+        line.useWorldSpace = false;
+        line.loop = true;
+
+        List<Vector3> points = GetCirclePoints(center, angularRadius, 100);
+        List<Vector3> local = new List<Vector3>();
+        foreach(Vector3 p in points)
+        {
+            local.Add(transform.InverseTransformPoint(p));
+        }
+
+        line.positionCount = local.Count;
+        line.SetPositions(local.ToArray());
     }
 
     /// <summary>
