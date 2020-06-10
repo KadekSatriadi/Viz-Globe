@@ -19,7 +19,7 @@ public class Globe: MonoBehaviour
     [Header("Graticules Lines")]
     public bool showLines = false;
     public Color graticuleColor;
-    public int latitudeSpacing = 10;
+    public int latitudeSpacing = 30;
     public int longitudeSpacing = 30;
     public float tickness = 0.001f;
     public Shader lineShader;
@@ -53,6 +53,7 @@ public class Globe: MonoBehaviour
     private List<GameObject> graticules = new List<GameObject>();
     private bool isReady = false;
     private List<LineRenderer> arcs = new List<LineRenderer>();
+    private List<GameObject> tapes = new List<GameObject>();
     private const float ROLL_LIMIT = 50f;
     //debugs
 
@@ -110,7 +111,7 @@ public class Globe: MonoBehaviour
         Vector3 u = startPoint - transform.position;
         Vector3 v = endPoint - transform.position;
 
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i <= n; i++)
         {
             float t = (float) i / (n - 1f);
             //final point
@@ -139,6 +140,103 @@ public class Globe: MonoBehaviour
     #endregion
 
     #region PUBLIC
+    /// <summary>
+    /// Draw a tape on the sphere surface
+    /// </summary>
+    /// <param name="latLon1">point 1</param>
+    /// <param name="latLon2">point 2</param>
+    /// <param name="width">width of the tape</param>
+    public void DrawTape(Vector2 latLon1, Vector2 latLon2, float width, Color color)
+    {
+        GameObject g = new GameObject("Tape");
+        g.transform.position = transform.position;
+        g.transform.SetParent(transform);
+        MeshFilter meshFilter = g.AddComponent<MeshFilter>();
+        MeshRenderer meshRenderer = g.AddComponent<MeshRenderer>();
+
+        //update component
+        meshFilter.mesh = CreateTapeMesh(latLon1, latLon2, width);
+        meshRenderer.material = new Material(lineShader);
+        meshRenderer.material.color = color;
+
+        //add to list
+        tapes.Add(g);
+    }
+
+    /// <summary>
+    /// Create Tape Mesh
+    /// </summary>
+    /// <param name="latLon1">point 1</param>
+    /// <param name="latLon2">point 2</param>
+    /// <param name="width">width</param>
+    /// <returns></returns>
+    public Mesh CreateTapeMesh(Vector2 latLon1, Vector2 latLon2, float width)
+    {
+        int nSegments = 150;
+        //Creat the tape mesh
+        //Get the points between these two
+        Vector3[] points = GetPointsBetween(latLon1, latLon2, nSegments + 1).ToArray();
+        //Build mesh vertices
+        Vector3[] verts = new Vector3[points.Length * 2];
+        Vector3[] normals = new Vector3[verts.Length];
+        int[] triangles = new int[nSegments * 2 * 3];
+        int tri = 0;
+        int p = 0;
+        for (int i = 0; i < nSegments; i++)
+        {
+            Vector3 anchor = points[i] + (points[i] - transform.position).normalized * 0.001f;
+
+            Vector3 normVector = (transform.position - anchor).normalized;
+            Vector3 forwardVector = (points[i + 1] - anchor).normalized;
+            Vector3 sideVector = Vector3.Cross(normVector, forwardVector);
+
+            Vector3 leftVert = anchor - (sideVector.normalized * width * 0.5f);
+            Vector3 rightVert = anchor + (sideVector.normalized * width * 0.5f);
+
+            verts[p] = leftVert;
+            verts[p + 1] = rightVert;
+
+            //normal
+            normals[p] = (leftVert - transform.position).normalized;
+            normals[p + 1] = (rightVert - transform.position).normalized;
+
+            p += 2;
+        }
+
+        //triangles
+        int c = 0;
+        for (int i = 0; i < nSegments - 1; i++)
+        {
+            //if not last segment, update triangle
+            triangles[tri] = c;
+            triangles[tri + 1] = c + 1;
+            triangles[tri + 2] = c + 2;
+            triangles[tri + 3] = c + 1;
+            triangles[tri + 4] = c + 3;
+            triangles[tri + 5] = c + 2;
+            c += 2;
+            tri += 6;
+        }
+
+        //create Mesh
+        Mesh mesh = new Mesh();
+        mesh.vertices = verts;
+        mesh.triangles = triangles;
+        mesh.normals = normals;
+        mesh.RecalculateBounds();
+        mesh.Optimize();
+
+        return mesh;
+    }
+
+    public void ClearTapes()
+    {
+        foreach(GameObject g in tapes)
+        {
+            Destroy(g, 0);
+        }
+        tapes = new List<GameObject>();
+    }
     /// <summary>
     /// Get the circle points around the center
     /// </summary>
@@ -287,7 +385,7 @@ public class Globe: MonoBehaviour
     /// <summary>
     /// Remove all arcs
     /// </summary>
-    public void RemoveArcs()
+    public void ClearArcs()
     {
         foreach(LineRenderer l in arcs)
         {

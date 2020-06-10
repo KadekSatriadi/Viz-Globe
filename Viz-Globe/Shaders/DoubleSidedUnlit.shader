@@ -68,7 +68,7 @@
             {
                 // sample the texture
 				half rim = 1 - saturate(dot(i.viewDir, i.normal));
-			fixed4 col = tex2D(_MainTex, i.uv) * lerp(_Color, _RimColor, pow(rim, _RimPower));
+				fixed4 col = tex2D(_MainTex, i.uv) * lerp(_Color, _RimColor, pow(rim, _RimPower));
 				fixed4 final = col ;
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, final);

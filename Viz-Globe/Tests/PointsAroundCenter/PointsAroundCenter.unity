@@ -259,7 +259,7 @@ MonoBehaviour:
   egocentric: 0
   showLines: 1
   graticuleColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 1}
-  latitudeSpacing: 20
+  latitudeSpacing: 30
   longitudeSpacing: 30
   tickness: 0.008
   lineShader: {fileID: 10755, guid: 0000000000000000f000000000000000, type: 0}
@@ -432,9 +432,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   globe: {fileID: 285969331}
   latlon: {x: 0, y: 0}
-  angle: 31.7
+  angle: 20
   line: {fileID: 943696910}
-  n: 100
+  n: 12
 --- !u!4 &943696912
 Transform:
   m_ObjectHideFlags: 0

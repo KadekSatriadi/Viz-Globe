@@ -12,6 +12,7 @@ Globe script for Unity. Good for geovisualization.
 - Mid point between two geolocations
 - Check if a point is on the visible side of the globe
 - Draw circles on the globe
+- Draw tapes on the globe
 - Rotate a geolocation to other geolocation
 - Google Earth like rotations with limit
 - Egocentric globe (inside out globe)

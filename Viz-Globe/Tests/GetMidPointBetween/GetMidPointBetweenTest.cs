@@ -28,7 +28,7 @@ public class GetMidPointBetweenTest : MonoBehaviour
         {
             c.transform.position = globe.GeoToWorldPosition(latLon1);
             d.transform.position = globe.GeoToWorldPosition(latLon2);
-            globe.RemoveArcs();
+            globe.ClearArcs();
             globe.DrawGreatCircleArc(latLon1, latLon2, Color.red, 0.001f);
             g.transform.position = globe.GeoToWorldPosition(globe.GetMidPointBetween(latLon1, latLon2));
         
