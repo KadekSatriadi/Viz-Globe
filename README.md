@@ -9,6 +9,8 @@ Globe script for Unity. Good for geovisualization.
 - Coordinate transformations World ↔ Geo (Latitude Longitude)
 - Graticules
 - Drawing arcs on the globe
+- Drawing tapes on the globe
+- Drawing sphere caps on the globe
 - Mid point between two geolocations
 - Check if a point is on the visible side of the globe
 - Draw circles on the globe
