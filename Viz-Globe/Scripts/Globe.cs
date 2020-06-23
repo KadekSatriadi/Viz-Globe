@@ -145,11 +145,37 @@ public class Globe: MonoBehaviour
     /// Drawing a sphere cap on the globe
     /// </summary>
     /// <param name="latLon"></param>
-    /// <param name="angle">Diameter, not radius!</param>
+    /// <param name="angularRadius">Radius!</param>
     /// <param name="nPoints"></param>
     /// <param name="nSegments"></param>
     /// <param name="color"></param>
-    public void DrawSphereCap(Vector2 latLon, float angle, int nPoints, int nSegments, Color color)
+    public void DrawSphereCap(Vector2 latLon, float angularRadius, int nPoints, int nSegments, Color color)
+    {
+      
+        GameObject sphereCap = new GameObject("SphereCap");
+        sphereCap.transform.position = transform.position;
+        sphereCap.transform.rotation = transform.rotation;
+        sphereCap.transform.SetParent(transform);
+        MeshFilter mf = sphereCap.AddComponent<MeshFilter>();
+        MeshRenderer mr = sphereCap.AddComponent<MeshRenderer>();
+        mf.mesh = CreateSpherCapMesh(latLon, angularRadius, nPoints, nSegments);
+        mr.material = new Material(lineShader);
+        mr.material.color = color;
+
+        sphereCaps.Add(sphereCap);
+    }
+
+
+    /// <summary>
+    /// Create sphere cap meash mesh
+    /// </summary>
+    /// <param name="latLon"></param>
+    /// <param name="angularRadius">Radius!</param>
+    /// <param name="nPoints"></param>
+    /// <param name="nSegments"></param>
+    /// <param name=""></param>
+    /// <returns></returns>
+    public Mesh CreateSpherCapMesh(Vector2 latLon, float angularRadius, int nPoints, int nSegments)
     {
         List<Vector3> points = new List<Vector3>();
         List<Vector3> normals = new List<Vector3>();
@@ -158,10 +184,10 @@ public class Globe: MonoBehaviour
         points.AddRange(GetCirclePoints(latLon, 0f, 1));
         for (int i = 1; i < nSegments; i++)
         {
-            points.AddRange(GetCirclePoints(latLon, i * (angle / nSegments), nPoints));
+            points.AddRange(GetCirclePoints(latLon, i * (angularRadius / (nSegments - 1)), nPoints));
         }
 
-        foreach(Vector3 p in points)
+        foreach (Vector3 p in points)
         {
             //DEBUG
             //GameObject g = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -176,14 +202,14 @@ public class Globe: MonoBehaviour
 
         //Triangles for the inner circle
         int tri = 1;
-        for(int i = 0; i < nPoints - 1; i++)
+        for (int i = 0; i < nPoints - 1; i++)
         {
             triangles.Add(0);
             triangles.Add(tri + 1);
             triangles.Add(tri);
             tri++;
         }
-       // Debug.Log(tri);
+        // Debug.Log(tri);
         triangles.Add(0);
         triangles.Add(1);
         triangles.Add(tri);
@@ -204,7 +230,7 @@ public class Globe: MonoBehaviour
                 triangles.Add(tri - nPoints + 1);
                 triangles.Add(tri + 1);
 
-               // Debug.Log(tri);
+                // Debug.Log(tri);
 
 
 
@@ -228,17 +254,11 @@ public class Globe: MonoBehaviour
         Mesh mesh = new Mesh();
         mesh.vertices = points.ToArray();
         mesh.triangles = triangles.ToArray();
-        GameObject sphereCap = new GameObject("SphereCap");
-        sphereCap.transform.position = transform.position;
-        sphereCap.transform.rotation = transform.rotation;
-        sphereCap.transform.SetParent(transform);
-        MeshFilter mf = sphereCap.AddComponent<MeshFilter>();
-        MeshRenderer mr = sphereCap.AddComponent<MeshRenderer>();
-        mf.mesh = mesh;
-        mr.material = new Material(lineShader);
-        mr.material.color = color;
+        mesh.normals = normals.ToArray();
+        mesh.RecalculateBounds();
+        mesh.Optimize();
 
-        sphereCaps.Add(sphereCap);
+        return mesh;
     }
 
     /// <summary>
