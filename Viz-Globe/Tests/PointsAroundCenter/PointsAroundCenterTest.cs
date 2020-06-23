@@ -47,11 +47,11 @@ public class PointsAroundCenterTest : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        for(int i = 0; i < n; i++)
-        {
-            Handles.Label(pos[i], latlons[i].ToString("F4"));
-        }
-    }
+    //private void OnDrawGizmos()
+    //{
+    //    for(int i = 0; i < n; i++)
+    //    {
+    //        Handles.Label(pos[i], latlons[i].ToString("F4"));
+    //    }
+    //}
 }

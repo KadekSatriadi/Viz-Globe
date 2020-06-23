@@ -54,7 +54,9 @@ public class Globe: MonoBehaviour
     private bool isReady = false;
     private List<LineRenderer> arcs = new List<LineRenderer>();
     private List<GameObject> tapes = new List<GameObject>();
-    private const float ROLL_LIMIT = 50f;
+    private List<GameObject> sphereCaps = new List<GameObject>();
+
+    private const float ROLL_LIMIT = 60f;
     //debugs
 
     #region MONOS
@@ -94,7 +96,6 @@ public class Globe: MonoBehaviour
 
     /// <summary>
     /// Get points between two latlons
-    /// https://math.stackexchange.com/questions/329749/draw-an-arc-in-3d-coordinate-system
     /// </summary>
     /// <param name="latLon1"></param>
     /// <param name="latLon2"></param>
@@ -141,12 +142,125 @@ public class Globe: MonoBehaviour
 
     #region PUBLIC
     /// <summary>
+    /// Drawing a sphere cap on the globe
+    /// </summary>
+    /// <param name="latLon"></param>
+    /// <param name="angle">Diameter, not radius!</param>
+    /// <param name="nPoints"></param>
+    /// <param name="nSegments"></param>
+    /// <param name="color"></param>
+    public void DrawSphereCap(Vector2 latLon, float angle, int nPoints, int nSegments, Color color)
+    {
+        List<Vector3> points = new List<Vector3>();
+        List<Vector3> normals = new List<Vector3>();
+        List<int> triangles = new List<int>();
+
+        points.AddRange(GetCirclePoints(latLon, 0f, 1));
+        for (int i = 1; i < nSegments; i++)
+        {
+            points.AddRange(GetCirclePoints(latLon, i * (angle / nSegments), nPoints));
+        }
+
+        foreach(Vector3 p in points)
+        {
+            //DEBUG
+            //GameObject g = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //g.transform.position = transform.position;
+            //g.transform.localScale *= 0.01f;
+            //g.transform.SetParent(transform);
+            //g.transform.localPosition = p;
+            //g.name = points.IndexOf(p).ToString();
+
+            normals.Add(p - transform.localPosition);
+        }
+
+        //Triangles for the inner circle
+        int tri = 1;
+        for(int i = 0; i < nPoints - 1; i++)
+        {
+            triangles.Add(0);
+            triangles.Add(tri + 1);
+            triangles.Add(tri);
+            tri++;
+        }
+       // Debug.Log(tri);
+        triangles.Add(0);
+        triangles.Add(1);
+        triangles.Add(tri);
+        tri++;
+
+        //Debug.Log("New line");
+
+        ////Triangles for outter circles
+        for (int i = 0; i < nSegments - 2; i++)
+        {
+            for (int j = 0; j < nPoints - 1; j++)
+            {
+                triangles.Add(tri);//21
+                triangles.Add(tri - nPoints); //1
+                triangles.Add(tri + 1); //22
+
+                triangles.Add(tri - nPoints);
+                triangles.Add(tri - nPoints + 1);
+                triangles.Add(tri + 1);
+
+               // Debug.Log(tri);
+
+
+
+                tri++;
+
+            }
+            triangles.Add(tri);//40
+            triangles.Add(tri - nPoints); //20
+            triangles.Add(tri - nPoints + 1); //21
+
+            triangles.Add(tri - nPoints); //20
+            triangles.Add(tri - (nPoints * 2) + 1);//1
+            triangles.Add(tri - nPoints + 1);//21
+
+            //Debug.Log("New line");
+            tri++;
+
+        }
+
+
+        Mesh mesh = new Mesh();
+        mesh.vertices = points.ToArray();
+        mesh.triangles = triangles.ToArray();
+        GameObject sphereCap = new GameObject("SphereCap");
+        sphereCap.transform.position = transform.position;
+        sphereCap.transform.rotation = transform.rotation;
+        sphereCap.transform.SetParent(transform);
+        MeshFilter mf = sphereCap.AddComponent<MeshFilter>();
+        MeshRenderer mr = sphereCap.AddComponent<MeshRenderer>();
+        mf.mesh = mesh;
+        mr.material = new Material(lineShader);
+        mr.material.color = color;
+
+        sphereCaps.Add(sphereCap);
+    }
+
+    /// <summary>
+    /// Clear all sphere caps
+    /// </summary>
+    public void ClearSphereCaps()
+    {
+        foreach(GameObject g in sphereCaps)
+        {
+            DestroyImmediate(g);
+        }
+
+        sphereCaps = new List<GameObject>();
+    }
+
+    /// <summary>
     /// Draw a tape on the sphere surface
     /// </summary>
     /// <param name="latLon1">point 1</param>
     /// <param name="latLon2">point 2</param>
     /// <param name="width">width of the tape</param>
-    public void DrawTape(Vector2 latLon1, Vector2 latLon2, float width, Color color)
+    public void DrawTape(Vector2 latLon1, Vector2 latLon2, float width, Color color, int nSegments)
     {
         GameObject g = new GameObject("Tape");
         g.transform.rotation = transform.rotation;
@@ -156,7 +270,7 @@ public class Globe: MonoBehaviour
         MeshRenderer meshRenderer = g.AddComponent<MeshRenderer>();
 
         //update component
-        meshFilter.mesh = CreateTapeMesh(latLon1, latLon2, width);
+        meshFilter.mesh = CreateTapeMesh(latLon1, latLon2, width, nSegments);
         meshRenderer.material = new Material(lineShader);
         meshRenderer.material.color = color;
 
@@ -171,31 +285,30 @@ public class Globe: MonoBehaviour
     /// <param name="latLon2">point 2</param>
     /// <param name="width">width</param>
     /// <returns></returns>
-    public Mesh CreateTapeMesh(Vector2 latLon1, Vector2 latLon2, float width)
+    public Mesh CreateTapeMesh(Vector2 latLon1, Vector2 latLon2, float width, int nSegments)
     {
-        int nSegments = 150;
         //Creat the tape mesh
         //Get the points between these two
         Vector3[] points = GetPointsBetween(latLon1, latLon2, nSegments + 1).ToArray();
+        
         //Build mesh vertices
-        Vector3[] verts = new Vector3[points.Length * 2];
+        Vector3[] verts = new Vector3[nSegments * 2 + 2];
         Vector3[] normals = new Vector3[verts.Length];
-        int[] triangles = new int[nSegments * 2 * 3];
-        int tri = 0;
+        int[] triangles = new int[nSegments * 6];
         int p = 0;
-        for (int i = 0; i < nSegments; i++)
+        for (int i = 0; i < points.Length; i++)
         {
-            Vector3 anchor = points[i] + (points[i] - transform.position).normalized * 0.001f;
+            Vector3 anchor = points[i] + (points[i] - transform.position).normalized * 0.005f;
 
-            Vector3 normVector = (transform.position - anchor).normalized;
-            Vector3 forwardVector = (points[i + 1] - anchor).normalized;
-            Vector3 sideVector = Vector3.Cross(normVector, forwardVector);
+            Vector3 toCenterVect = (transform.position - anchor).normalized;
+            Vector3 forwardVect = (i < points.Length - 1)? (points[i + 1] - anchor).normalized : (anchor - points[i - 1]).normalized;
+            Vector3 sideVect = Vector3.Cross(toCenterVect, forwardVect);
 
-            Vector3 leftVert = anchor - (sideVector.normalized * width * 0.5f);
-            Vector3 rightVert = anchor + (sideVector.normalized * width * 0.5f);
+            Vector3 leftVert = anchor - (sideVect.normalized * width * 0.5f);
+            Vector3 rightVert = anchor + (sideVect.normalized * width * 0.5f);
 
             verts[p] = transform.InverseTransformPoint(leftVert);
-            verts[p + 1] = transform.InverseTransformPoint(rightVert);
+            verts[p + 1] = transform.InverseTransformPoint(rightVert);           
 
             //normal
             normals[p] = (leftVert - transform.position).normalized;
@@ -206,7 +319,8 @@ public class Globe: MonoBehaviour
 
         //triangles
         int c = 0;
-        for (int i = 0; i < nSegments - 1; i++)
+        int tri = 0;
+        for (int i = 0; i < nSegments; i++)
         {
             //if not last segment, update triangle
             triangles[tri] = c;
