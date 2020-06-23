@@ -224,6 +224,7 @@ GameObject:
   - component: {fileID: 1905767362}
   - component: {fileID: 1905767361}
   - component: {fileID: 1905767360}
+  - component: {fileID: 1905767363}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -248,8 +249,8 @@ Camera:
   m_GameObject: {fileID: 1905767359}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -296,6 +297,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1905767363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905767359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fda2873f168a124495cdefb013f6fba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoom: 1
+  zoomLimit: 0
+  zLimit: 0
+  scrollSpeed: 0.5
+  pan: 1
+  look: 1
 --- !u!1 &1959211600
 GameObject:
   m_ObjectHideFlags: 0
@@ -353,7 +372,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   maxSpeed: 0.2
   minSpeed: 0.05
-  pichConstraint: 0.5
 --- !u!114 &1959211602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,12 +386,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshResolution: 200
   radius: 0.5
-  material: {fileID: 2100000, guid: ab5f544992e0ee64592daa2f06c9a610, type: 2}
+  material: {fileID: 2100000, guid: 15e0dc585bf969e44a3c918d02eaae39, type: 2}
   initOnStart: 1
   egocentric: 0
   showLines: 1
-  graticuleColor: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 1}
-  latitudeSpacing: 10
+  graticuleColor: {r: 0.3773585, g: 0.36133856, b: 0.36133856, a: 1}
+  latitudeSpacing: 15
   longitudeSpacing: 15
   tickness: 0.001
   lineShader: {fileID: 10755, guid: 0000000000000000f000000000000000, type: 0}
