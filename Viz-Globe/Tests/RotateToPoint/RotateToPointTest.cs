@@ -34,11 +34,11 @@ public class RotateToPointTest : MonoBehaviour
                 c.transform.position = pos;
                 text = "Lat long= " + latLon.ToString();
 
-                globe.RotateToPoint(pos, latLon, false);
+                //globe.RotateToPointAnimate(pos, latLon, true);
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    globe.RotateToPoint(pos, latLon, true);
+                    globe.RotateToPointAnimate(pos, latLon);
                 }
             }
 

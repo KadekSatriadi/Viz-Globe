@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GlobeRotator : MonoBehaviour
 {
@@ -10,6 +11,11 @@ public class GlobeRotator : MonoBehaviour
     public float maxSpeed = 0.5f;
     [Range(0.1f, 1f)]
     public float minSpeed = 0.05f;
+
+    [Header("Unity Events")]
+    public UnityEvent OnStartRotation;
+    public UnityEvent OnFinishRotation;
+    public UnityEvent OnRotation;
 
     private enum InteractioStatus
     {
@@ -35,11 +41,13 @@ public class GlobeRotator : MonoBehaviour
             lastRotation = globe.transform.rotation;
             lastCursorPosition = Input.mousePosition;
             interactionStatus = InteractioStatus.Drag;
+            OnStartRotation.Invoke();
         }
 
         if (Input.GetMouseButtonUp(0))
         {
             interactionStatus = InteractioStatus.Null;
+            OnFinishRotation.Invoke();
         }
 
         if (interactionStatus == InteractioStatus.Drag)
@@ -52,6 +60,8 @@ public class GlobeRotator : MonoBehaviour
 
             globe.RollLimit(Camera.main.transform.position, y);
             globe.Yaw(x);
+
+            OnRotation.Invoke();
         }
 
         lastCursorPosition = Input.mousePosition;

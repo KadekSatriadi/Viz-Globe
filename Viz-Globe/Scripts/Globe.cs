@@ -511,14 +511,31 @@ public class Globe: MonoBehaviour
     }
 
     /// <summary>
-    ///Calculate the distance between two lat lon
+    ///Calculate the distance between two lat lon, source: https://stackoverflow.com/questions/6544286/calculate-distance-of-two-geo-points-in-km-c-sharp
     /// </summary>
     /// <param name="latLon1"></param>
     /// <param name="latLon2"></param>
     /// <returns></returns>
     public float GreatCircleDistance(Vector2 latLon1, Vector2 latLon2)
     {
-        return radius * 0.5f * GetCentralAngle(latLon1, latLon2);
+        float lat1 = latLon1.x;
+        float lon1 = latLon1.y;
+        float lat2 = latLon2.x;
+        float lon2 = latLon2.y;
+
+        float sLat1 = Mathf.Sin(Mathf.Deg2Rad * (lat1));
+        float sLat2 = Mathf.Sin(Mathf.Deg2Rad * (lat2));
+        float cLat1 = Mathf.Cos(Mathf.Deg2Rad * (lat1));
+        float cLat2 = Mathf.Cos(Mathf.Deg2Rad * (lat2));
+        float cLon = Mathf.Cos(Mathf.Deg2Rad * (lon1) - Mathf.Deg2Rad * (lon2));
+
+        float cosD = sLat1 * sLat2 + cLat1 * cLat2 * cLon;
+
+        float d = Mathf.Acos(cosD);
+
+        float dist = radius * d;
+
+        return dist;
     }
 
     /// <summary>
@@ -600,6 +617,53 @@ public class Globe: MonoBehaviour
             transform.rotation = finalRot;
         }
 
+    }
+
+    /// <summary>
+    /// [DOES NOT WORK WELL] Rotating the globe such that the latLon is at the give world point
+    /// </summary>
+    /// <param name="worldPoint">the point to which latLon should be moved</param>
+    /// <param name="latLon">the target lat lon</param>
+    ///
+    public void RotateToPointAnimate(Vector3 worldPoint, Vector2 latLon)
+    {
+      
+
+        StartCoroutine(YawAnimate(worldPoint, latLon));
+       
+    }
+
+    private IEnumerator YawAnimate(Vector3 worldPoint, Vector2 latLon)
+    {
+        Vector2 latLonWorld = WorldToGeoPosition(worldPoint);
+
+        //animate
+        float inc = 2f;
+        bool isYawValid= true;
+        bool isRollValid = true;
+
+        float y = 1f;
+        float r = 1f;
+        if (latLonWorld.y > latLon.y) y = -1f;
+        if (latLonWorld.x < latLon.x) r = -1f;
+
+        while (isYawValid || isRollValid)
+        {
+            if(isYawValid) Yaw(y * inc);
+            if(isRollValid) RollLimit(Camera.main.transform.position, r * inc);
+
+            latLonWorld = WorldToGeoPosition(worldPoint);
+
+            if (Mathf.Abs(latLonWorld.y - latLon.y) <= 3f)
+            {
+                isYawValid = false;
+            }
+            if (Mathf.Abs(latLonWorld.x - latLon.x) <= 3f)
+            {
+                isRollValid = false;
+            }
+            yield return new WaitForSeconds(0.005f);
+        }
     }
 
     /// <summary>
