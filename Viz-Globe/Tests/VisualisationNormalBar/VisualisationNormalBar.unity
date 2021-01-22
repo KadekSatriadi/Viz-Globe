@@ -200,6 +200,50 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d766727217e85914080e0fc598f2aa6c, type: 3}
+--- !u!1 &102553751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 102553752}
+  - component: {fileID: 102553753}
+  m_Layer: 0
+  m_Name: Database
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &102553752
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102553751}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.261874, y: 1.4654486, z: 1.2068975}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &102553753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102553751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8a78dd224b445e4ab53be1ccd861bb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  csv: {fileID: 4900000, guid: 2550ccbffc4da784590bc1be643ee81c, type: 3}
 --- !u!1 &1033804074
 GameObject:
   m_ObjectHideFlags: 0
@@ -303,6 +347,7 @@ GameObject:
   - component: {fileID: 1578124933}
   - component: {fileID: 1578124932}
   - component: {fileID: 1578124931}
+  - component: {fileID: 1578124934}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -375,6 +420,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1578124934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578124930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fda2873f168a124495cdefb013f6fba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoom: 1
+  zoomLimit: 0
+  zLimit: 0
+  scrollSpeed: 0.5
+  pan: 1
+  look: 1
 --- !u!1 &1764619838 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 16026862915237206, guid: d766727217e85914080e0fc598f2aa6c,
@@ -407,3 +470,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   globe: {fileID: 1764619839}
   shader: {fileID: 4800000, guid: 126297aa4b43a834eab0db07ad4c1c6f, type: 3}
+  database: {fileID: 102553753}
+  latitudeLabel: latitude
+  longitudeLabel: longitude
+  valueLabel: nkill
+  colorLabel: nkill
+  maxRange: 0.745
+  barSize: 0.02
+  maxColor: {r: 0.9254902, g: 0.24827631, b: 0, a: 1}
+  minColor: {r: 0.745283, g: 0.544248, b: 0.010546438, a: 1}
