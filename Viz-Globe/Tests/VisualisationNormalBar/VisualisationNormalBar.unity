@@ -243,7 +243,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8a78dd224b445e4ab53be1ccd861bb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  csv: {fileID: 4900000, guid: 2550ccbffc4da784590bc1be643ee81c, type: 3}
+  csv: {fileID: 4900000, guid: d884e76a05df9f743aa5ed597c2c0182, type: 3}
 --- !u!1 &1033804074
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,6 +348,7 @@ GameObject:
   - component: {fileID: 1578124932}
   - component: {fileID: 1578124931}
   - component: {fileID: 1578124934}
+  - component: {fileID: 1578124935}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -372,7 +373,7 @@ Camera:
   m_GameObject: {fileID: 1578124930}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -438,6 +439,25 @@ MonoBehaviour:
   scrollSpeed: 0.5
   pan: 1
   look: 1
+--- !u!114 &1578124935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578124930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f76385c6286e8ec449feb86e55122263, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameras:
+  - {fileID: 1578124932}
+  width: 1920
+  height: 1080
+  absolutePathToFolder: D:\
+  prefixFileName: 
+  saveButton: 32
 --- !u!1 &1764619838 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 16026862915237206, guid: d766727217e85914080e0fc598f2aa6c,
@@ -473,9 +493,28 @@ MonoBehaviour:
   database: {fileID: 102553753}
   latitudeLabel: latitude
   longitudeLabel: longitude
-  valueLabel: nkill
-  colorLabel: nkill
+  valueLabel: population
+  colorLabel: population
   maxRange: 0.745
   barSize: 0.02
   maxColor: {r: 0.9254902, g: 0.24827631, b: 0, a: 1}
-  minColor: {r: 0.745283, g: 0.544248, b: 0.010546438, a: 1}
+  minColor: {r: 0.9245283, g: 0.6904632, b: 0, a: 1}
+--- !u!114 &1764619842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764619838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f76385c6286e8ec449feb86e55122263, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameras:
+  - {fileID: 1578124932}
+  width: 3840
+  height: 2160
+  absolutePathToFolder: D:\
+  prefixFileName: 
+  saveButton: 32

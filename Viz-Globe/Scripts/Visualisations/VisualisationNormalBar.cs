@@ -57,6 +57,7 @@ public class VisualisationNormalBar : MonoBehaviour
 
         //create visualisation gameobject
         GameObject g = new GameObject("VisualisationNormalBar");
+        g.transform.position = globe.transform.position;
         g.transform.SetParent(globe.transform);
         MeshFilter mf = g.AddComponent<MeshFilter>();
         MeshRenderer mr = g.AddComponent<MeshRenderer>();
