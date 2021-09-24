@@ -1,0 +1,89 @@
+<PAMDataset>
+  <Metadata domain="xml:XMP" format="xml">
+    <?xpacket begin="&#xFEFF;" id="W5M0MpCehiHzreSzNTczkc9d"?>
+    <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.6-c145 79.163499, 2018/08/13-16:40:22        ">
+      <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/" xmlns:xmpRights="http://ns.adobe.com/xap/1.0/rights/" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt="http://ns.adobe.com/xap/1.0/sType/ResourceEvent#">
+          <xmp:CreatorTool>Adobe Photoshop CC 2014 (Macintosh)</xmp:CreatorTool>
+          <xmp:ModifyDate>2020-05-13T21:36:29+10:00</xmp:ModifyDate>
+          <xmp:CreateDate>2010-12-17T01:34:54-05:00</xmp:CreateDate>
+          <xmp:MetadataDate>2020-05-13T21:36:29+10:00</xmp:MetadataDate>
+          <dc:format>image/tiff</dc:format>
+          <photoshop:ColorMode>3</photoshop:ColorMode>
+          <photoshop:DocumentAncestors>
+            <rdf:Bag>
+              <rdf:li>uuid:3E457CED1A07DE11ABDABC1B6A9792BE</rdf:li>
+              <rdf:li>uuid:73F03BF1982DDE11A2FFE2FAD81BC01A</rdf:li>
+              <rdf:li>uuid:8E518F934E8EDE11B021BEA6F8B8B090</rdf:li>
+              <rdf:li>uuid:E7E371FA470CE011AEEC90D8D317DC08</rdf:li>
+              <rdf:li>uuid:F8F2741BF849DE119BF1DA9FEFE4BB58</rdf:li>
+              <rdf:li>xmp.did:01801174072068118739BFF1BF5AA5FC</rdf:li>
+              <rdf:li>xmp.did:018011740720681192B083132B72E2E6</rdf:li>
+              <rdf:li>xmp.did:01801174072068119389EED0AF04725C</rdf:li>
+              <rdf:li>xmp.did:03801174072068119389EED0AF04725C</rdf:li>
+            </rdf:Bag>
+          </photoshop:DocumentAncestors>
+          <xmpRights:Marked>False</xmpRights:Marked>
+          <xmpMM:InstanceID>xmp.iid:971b0a03-00c0-e146-bfa8-4353036aedea</xmpMM:InstanceID>
+          <xmpMM:DocumentID>adobe:docid:photoshop:60c48988-8e82-1e48-8d0b-fd09b2d580af</xmpMM:DocumentID>
+          <xmpMM:OriginalDocumentID>xmp.did:EEAF27640A206811A613E1C620DEFAD3</xmpMM:OriginalDocumentID>
+          <xmpMM:History>
+            <rdf:Seq>
+              <rdf:li rdf:parseType="Resource">
+                <stEvt:action>created</stEvt:action>
+                <stEvt:instanceID>xmp.iid:EEAF27640A206811A613E1C620DEFAD3</stEvt:instanceID>
+                <stEvt:when>2010-12-17T01:34:54-05:00</stEvt:when>
+                <stEvt:softwareAgent>Adobe Photoshop CS5 Macintosh</stEvt:softwareAgent>
+              </rdf:li>
+              <rdf:li rdf:parseType="Resource">
+                <stEvt:action>saved</stEvt:action>
+                <stEvt:instanceID>xmp.iid:EFAF27640A206811A613E1C620DEFAD3</stEvt:instanceID>
+                <stEvt:when>2012-07-16T09:16:14-04:00</stEvt:when>
+                <stEvt:softwareAgent>Adobe Photoshop CS5 Macintosh</stEvt:softwareAgent>
+                <stEvt:changed>/</stEvt:changed>
+              </rdf:li>
+              <rdf:li rdf:parseType="Resource">
+                <stEvt:action>saved</stEvt:action>
+                <stEvt:instanceID>xmp.iid:971b0a03-00c0-e146-bfa8-4353036aedea</stEvt:instanceID>
+                <stEvt:when>2020-05-13T21:36:29+10:00</stEvt:when>
+                <stEvt:softwareAgent>Adobe Photoshop CC 2019 (Windows)</stEvt:softwareAgent>
+                <stEvt:changed>/</stEvt:changed>
+              </rdf:li>
+            </rdf:Seq>
+          </xmpMM:History>
+        </rdf:Description>
+      </rdf:RDF>
+    </x:xmpmeta>
+    <?xpacket end="w"?>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">255</MDI>
+      <MDI key="STATISTICS_MEAN">150.29579162598</MDI>
+      <MDI key="STATISTICS_MINIMUM">78</MDI>
+      <MDI key="STATISTICS_STDDEV">36.870708064112</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+  </PAMRasterBand>
+  <PAMRasterBand band="2">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">255</MDI>
+      <MDI key="STATISTICS_MEAN">182.1005859375</MDI>
+      <MDI key="STATISTICS_MINIMUM">98</MDI>
+      <MDI key="STATISTICS_STDDEV">22.112823044922</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+  </PAMRasterBand>
+  <PAMRasterBand band="3">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">255</MDI>
+      <MDI key="STATISTICS_MEAN">204.09986877441</MDI>
+      <MDI key="STATISTICS_MINIMUM">69</MDI>
+      <MDI key="STATISTICS_STDDEV">24.910553903588</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>

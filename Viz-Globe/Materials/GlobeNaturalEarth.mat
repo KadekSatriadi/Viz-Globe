@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GlobeNaturalEarth
-  m_Shader: {fileID: 4800000, guid: 4937bf122a71d2c4881ffd6102483160, type: 3}
+  m_Shader: {fileID: 6, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -68,12 +68,15 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RimPower: 3.8
+    - _Shininess: 0.01
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.093, g: 0.093, b: 0.093, a: 1}
+    - _Emission: {r: 0.16981131, g: 0.16981131, b: 0.16981131, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
+    - _SpecColor: {r: 0.09433961, g: 0.09433961, b: 0.09433961, a: 1}

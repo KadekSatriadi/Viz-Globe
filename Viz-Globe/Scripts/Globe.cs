@@ -827,6 +827,8 @@ public class Globe: MonoBehaviour
     /// </summary>
     public void Initiate()
     {
+        filter = gameObject.GetComponent<MeshFilter>();
+        render = gameObject.GetComponent<MeshRenderer>();
         if (filter == null) filter = gameObject.AddComponent<MeshFilter>();
         if (render == null) render = gameObject.AddComponent<MeshRenderer>();
         render.material = material;
@@ -884,6 +886,7 @@ public class Globe: MonoBehaviour
     public void CreateSphere()
     {
         Mesh mesh = filter.mesh;
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.Clear();
 
         // Longitude |||
