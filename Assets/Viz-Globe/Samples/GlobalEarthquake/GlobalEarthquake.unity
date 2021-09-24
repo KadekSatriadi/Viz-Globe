@@ -205,8 +205,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
-  m_fontSizeBase: 18
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -824,6 +824,9 @@ MonoBehaviour:
   relativeColor: 1
   maxColorValue: 0
   colorProvider: {fileID: 1414366563}
+  OnReady:
+    m_PersistentCalls:
+      m_Calls: []
   heightLabel: Depth
   maxHeight: 0.5
   maxRadius: 0.025
@@ -840,4 +843,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 891f16522281a5345a56f6d82c22c6cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  csv: {fileID: 4900000, guid: 15a8ae3bac5c10e46963471bcbc354e6, type: 3}
+  csv: {fileID: 4900000, guid: aadf8df6e96cc6444a79ccba7c857ff0, type: 3}
