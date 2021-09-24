@@ -1,0 +1,250 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+//#pragma kernel CSMain
+#pragma kernel CSGenerateFlowTube
+#pragma kernel CSGenerateFlowBezier
+
+struct Data {
+    float3 position1;
+    float3 position2;
+    float radiusNormalised;
+	float heightNormalised;
+};
+
+
+
+float MaxRadius;
+float MaxHeight;
+
+float4x4 unity_ObjectToWorld;
+int nTubeSegment;
+int nCircleSegment;
+int nvertices;
+int nindices;
+
+float3 globeCenter;
+float globeRadius;
+
+float4 Color1;
+float4 Color2;
+
+StructuredBuffer<Data> InputData;
+RWStructuredBuffer<float3> OutputVertices;
+RWStructuredBuffer<float3> OutputNormals;
+RWStructuredBuffer<float4> OutputColors;
+RWStructuredBuffer<float2> OutputUVs;
+
+RWStructuredBuffer<int> OutputIndices;
+
+
+[numthreads(10, 1, 1)]
+void CSGenerateFlowTube(uint3 id : SV_DispatchThreadID) 
+{
+	Data input = InputData[id.x];
+
+	float3 vertex1 = input.position1;
+	float3 vertex2 = input.position2;
+	float r = input.radiusNormalised * MaxRadius;
+
+
+	//triangles
+	float3 direction = (vertex2 - vertex1);
+	float3 side = normalize(cross(direction, float3(0, 1, 0)));
+	float4 color = float4(1, 1, 1, 1);
+
+
+	float stepSeg = distance(vertex1, vertex2) / nTubeSegment;
+	float stepDeg = 360.0 / nCircleSegment;
+	float3 stepSegVector = (normalize(direction) * stepSeg);
+	float3 pivot1 = vertex1;
+	float3 pivot2 = vertex1 + stepSegVector;
+
+	float3 p1, p2, p3, p4;
+	int cv = id.x * nvertices; //vertex and normal counter
+	int ci = id.x * nindices; //index counter
+
+	for (int i = 0; i < nTubeSegment; i++) {
+		direction = pivot2 - pivot1;
+		for (int j = 0; j < nCircleSegment; j++) // circle
+		{
+			//https://stackoverflow.com/questions/27714014/3d-point-on-circumference-of-a-circle-with-a-center-radius-and-normal-vector
+			//create a new coordinate system (v1, v2, v3) whose normal is pivot2 - pivot1
+			//p = centerPoint + R * (cos(a) * v1 + sin(a) * v2)
+
+			float3 v3 = normalize(direction);
+			float3 v1 = normalize(float3(v3.z, 0, -v3.x));
+			float3 v2 = cross(v3, v1);
+
+			float angle1 = radians(stepDeg * j);
+			float angle2 = radians(stepDeg * (j + 1));
+
+			p1 = pivot1 + r * (cos(angle1) * v1 + sin(angle1) * v2);
+			p2 = pivot1 + r * (cos(angle2) * v1 + sin(angle2) * v2);
+			p3 = pivot2 + r * (cos(angle2) * v1 + sin(angle2) * v2);
+			p4 = pivot2 + r * (cos(angle1) * v1 + sin(angle1) * v2);
+
+			//Vertices	
+			OutputVertices[cv  + 0] = p1;
+			OutputVertices[cv  + 1] = p2;
+			OutputVertices[cv  + 2] = p3;
+			OutputVertices[cv  + 3] = p4;
+
+
+			//Normals
+			float3 worldNormal = normalize(cross(
+			normalize(mul(unity_ObjectToWorld, p1) - mul(unity_ObjectToWorld, p2)),
+				normalize(mul(unity_ObjectToWorld, p1) - mul(unity_ObjectToWorld, p3))
+				));
+
+			OutputNormals[cv  + 0] = worldNormal;
+			OutputNormals[cv  + 1] = worldNormal;
+			OutputNormals[cv  + 2] = worldNormal;
+			OutputNormals[cv  + 3] = worldNormal;
+
+		
+			//Triangles / Quad / Indices
+			OutputIndices[ci  + 0] = cv  + 0;
+			OutputIndices[ci +  1] = cv + 1;
+			OutputIndices[ci  + 2] = cv  + 2;
+
+			OutputIndices[ci  + 3] = cv  + 0;			
+			OutputIndices[ci  + 4] = cv  + 2;
+			OutputIndices[ci +  5] = cv + 3;
+
+			//increment counter
+			ci += 6;
+			cv += 4;
+
+
+			//end add quad
+		}
+		pivot1 = pivot2;
+		pivot2 = pivot1 + stepSegVector;
+	}
+}
+
+float3 CalculateNormal(float3 p1, float3 p2, float3 p3) {
+	float3 normal = normalize(cross(
+		normalize(mul(unity_ObjectToWorld, p1) - mul(unity_ObjectToWorld, p2)),
+		normalize(mul(unity_ObjectToWorld, p1) - mul(unity_ObjectToWorld, p3))
+	));
+
+	return normal;
+}
+
+
+float3 GetPositionBezierCurveCubic(float3 p0, float3 p1, float3 p2, float3 p3, float t) {
+	float3 p = pow((1.0 - t), 3) * p0 + 3 * pow((1 - t), 2) * t * p1 + 3 * (1 - t) * t * t * p2 + pow(t, 3) * p3;
+
+	return p;
+}
+
+
+[numthreads(10, 1, 1)]
+void CSGenerateFlowBezier(uint3 id : SV_DispatchThreadID)
+{
+	Data input = InputData[id.x];
+
+	float3 vertex1 = input.position1;
+	float3 vertex2 = input.position2;
+	float r = input.radiusNormalised * MaxRadius;
+	float h = input.heightNormalised * MaxHeight;
+
+	//triangles
+	float3 direction = (vertex2 - vertex1);
+	float3 side = normalize(cross(direction, float3(0, 1, 0)));
+	float4 color = float4(1, 1, 1, 1);
+
+	//calculate bezier curve points
+	float3 pb0, pb1, pb2, pb3;
+	pb0 = vertex1;
+	pb3 = vertex2;
+
+	float hc = 4.0 / 3 * h;
+	float3 center = (pb0 + pb3) * 0.5;
+	float3 fromGlobeVec = normalize(center - globeCenter) * globeRadius;
+
+	pb1 = pb0 + fromGlobeVec * hc;
+	pb2 = pb3 + fromGlobeVec * hc;
+
+	float stepSeg = 1.0 / nTubeSegment;
+	float stepDeg = 360.0 / nCircleSegment;
+
+	float3 pivot1 = pb0;
+	float3 pivot2 = GetPositionBezierCurveCubic(pb0, pb1, pb2, pb3, stepSeg);
+
+	float3 p1, p2, p3, p4;
+	int cv = id.x * nvertices; //vertex and normal counter
+	int ci = id.x * nindices; //index counter
+
+	for (int i = 0; i < nTubeSegment; i++) {
+		direction = pivot2 - pivot1;
+
+		float4 color = lerp(Color1, Color2, stepSeg * i);
+
+		for (int j = 0; j < nCircleSegment; j++) // circle
+		{
+			//https://stackoverflow.com/questions/27714014/3d-point-on-circumference-of-a-circle-with-a-center-radius-and-normal-vector
+			//create a new coordinate system (v1, v2, v3) whose normal is pivot2 - pivot1
+			//p = centerPoint + R * (cos(a) * v1 + sin(a) * v2)
+
+			float3 v3 = normalize(direction);
+			float3 v1 = normalize(float3(v3.z, 0.0, -v3.x));
+			float3 v2 = cross(v3, v1);
+
+			float angle1 = radians(stepDeg * j);
+			float angle2 = radians(stepDeg * (j + 1));
+
+			p1 = pivot1 + r * (cos(angle1) * v1 + sin(angle1) * v2);
+			p2 = pivot1 + r * (cos(angle2) * v1 + sin(angle2) * v2);
+			p3 = pivot2 + r * (cos(angle2) * v1 + sin(angle2) * v2);
+			p4 = pivot2 + r * (cos(angle1) * v1 + sin(angle1) * v2);
+
+			//Vertices	
+			OutputVertices[cv + 0] = p1;
+			OutputVertices[cv + 1] = p2;
+			OutputVertices[cv + 2] = p3;
+			OutputVertices[cv + 3] = p4;
+
+
+			//Normals
+			float3 worldNormal = CalculateNormal(p1, p2, p3);
+
+			OutputNormals[cv + 0] = worldNormal;
+			OutputNormals[cv + 1] = worldNormal;
+			OutputNormals[cv + 2] = worldNormal;
+			OutputNormals[cv + 3] = worldNormal;
+
+			//Colors
+			OutputColors[cv + 0] = color;
+			OutputColors[cv + 1] = color;
+			OutputColors[cv + 2] = color;
+			OutputColors[cv + 3] = color;
+
+
+			//UVs
+			OutputUVs[cv + 0] = float2((stepDeg * j)/360, 0.0);
+			OutputUVs[cv + 1] = float2((stepDeg * (j + 1)) / 360, 0.0);
+			OutputUVs[cv + 2] = float2((stepDeg * j)/ 360, 1.0);
+			OutputUVs[cv + 3] = float2((stepDeg * (j + 1)) / 360, 1.0);
+
+			//Triangles / Quad / Indices
+			OutputIndices[ci + 0] = cv + 0;
+			OutputIndices[ci + 1] = cv + 1;
+			OutputIndices[ci + 2] = cv + 2;
+
+			OutputIndices[ci + 3] = cv + 0;
+			OutputIndices[ci + 4] = cv + 2;
+			OutputIndices[ci + 5] = cv + 3;
+
+			//increment counter
+			ci += 6;
+			cv += 4;
+
+
+			//end add quad
+		}
+		pivot1 = GetPositionBezierCurveCubic(pb0, pb1, pb2, pb3, stepSeg * (i + 1));
+		pivot2 = GetPositionBezierCurveCubic(pb0, pb1, pb2, pb3, stepSeg * (i + 2));
+	}
+}
+

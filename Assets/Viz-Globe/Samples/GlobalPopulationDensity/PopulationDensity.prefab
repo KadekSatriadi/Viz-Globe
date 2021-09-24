@@ -1,0 +1,136 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8216478397133148822
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8216478397133148818}
+  - component: {fileID: 8216478397133148819}
+  - component: {fileID: 8216478397133148820}
+  - component: {fileID: 8216478397133148821}
+  - component: {fileID: 8216478397133148817}
+  m_Layer: 0
+  m_Name: PopulationDensity
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8216478397133148818
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8216478397133148822}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.434}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8216478397133148819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8216478397133148822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6438f98d0a5207e4a8b7493e988a47f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshResolution: 200
+  radius: 2
+  material: {fileID: 2100000, guid: 15e0dc585bf969e44a3c918d02eaae39, type: 2}
+  initOnStart: 0
+  egocentric: 0
+  showLines: 1
+  graticuleColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 1}
+  latitudeSpacing: 30
+  longitudeSpacing: 30
+  tickness: 0.00025
+  lineShader: {fileID: 4800000, guid: 4937bf122a71d2c4881ffd6102483160, type: 3}
+  lineResolution: 50
+  animationCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  animationDuration: 1
+--- !u!114 &8216478397133148820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8216478397133148822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 075412babf0d8c24bb229d8b52277e23, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  initOnStart: 1
+  globe: {fileID: 8216478397133148819}
+  shader: {fileID: 4800000, guid: 126297aa4b43a834eab0db07ad4c1c6f, type: 3}
+  texture: {fileID: 0}
+  database: {fileID: 8216478397133148821}
+  condition: 
+  latitudeLabel: y
+  longitudeLabel: x
+  valueLabel: popdensity
+  colorLabel: popdensity
+  relativeValue: 1
+  maxValue: 29819.7
+  relativeColor: 1
+  maxColorValue: 29819.7
+  maxLength: 1
+  barSize: 0.0047
+  colorProvider: {fileID: 8216478397133148817}
+--- !u!114 &8216478397133148821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8216478397133148822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891f16522281a5345a56f6d82c22c6cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  csv: {fileID: 4900000, guid: d53e2e4d688b79d4981c1cc52bc7bcb7, type: 3}
+--- !u!114 &8216478397133148817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8216478397133148822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb8c16ce156964faa78e0e17b2af54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeColorSetting: 3
+  maxColor: {r: 0.9254902, g: 0.24827631, b: 0, a: 1}
+  minColor: {r: 0.69803923, g: 0.8745098, b: 0.5411765, a: 1}
+  maxMinLerpscale: 1
+  colorTexture: {fileID: 0}
+  colorSteps: 2
+  colorCode: 27
+  reverseColour: 0
+  customColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0.69803923, g: 0.8745098, b: 0.5411765, a: 1}
+  - {r: 0.504717, g: 0.6542731, b: 1, a: 1}
+  - {r: 1, g: 0.41037738, b: 0.41037738, a: 1}
+  - {r: 1, g: 0.18396229, b: 0.18396229, a: 1}
+  customColorLerpScale: 1
