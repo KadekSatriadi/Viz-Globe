@@ -4,7 +4,7 @@
 
 Globe script for Unity. Good for geovisualization.
 
-## Features:
+## Globe Features:
 
 - Coordinate transformations World ↔ Geo (Latitude Longitude)
 - Graticules
@@ -18,3 +18,9 @@ Globe script for Unity. Good for geovisualization.
 - Rotations with limit
 - Egocentric globe (inside out globe)
 - Rim effect
+
+## Visualisation
+
+- Flow globes
+- Proportional symbol globes
+- Bar globes
